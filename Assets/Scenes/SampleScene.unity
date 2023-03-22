@@ -839,6 +839,7 @@ MonoBehaviour:
   screenObject: {fileID: 1117816199}
   cameraObject: {fileID: 519420028}
   testTexture: {fileID: 2800000, guid: 59450efab2ef2f34598fc102a2bc39b4, type: 3}
+  maxFrameRate: 500
   useWebcam: 0
   webcamDims: {x: 1280, y: 720}
   webcamFrameRate: 60
