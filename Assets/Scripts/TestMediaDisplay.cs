@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using MediaDisplay;
 
@@ -7,29 +6,20 @@ public class TestMediaDisplay : MonoBehaviour
 {
     // Scene components and settings
     [Header("Scene")]
-    [Tooltip("Screen object in the scene")]
-    public GameObject screenObject;
-    [Tooltip("Camera object in the scene")]
-    public GameObject cameraObject;
-    [Tooltip("A test texture to display on the screen")]
-    public Texture testTexture;
+    [SerializeField] private GameObject screenObject;
+    [SerializeField] private GameObject cameraObject;
+    [SerializeField] private Texture testTexture;
 
     // Webcam settings
     [Header("Webcam")]
-    [Tooltip("Option to use webcam as input")]
-    public bool useWebcam = false;
-    [Tooltip("Requested webcam dimensions")]
-    public Vector2Int webcamDims = new Vector2Int(1280, 720);
-    [Tooltip("Requested webcam framerate")]
-    [Range(0, 60)]
-    public int webcamFrameRate = 60;
+    [SerializeField] private bool useWebcam = false;
+    [SerializeField] private Vector2Int webcamDims = new Vector2Int(1280, 720);
+    [SerializeField, Range(0, 60)] private int webcamFrameRate = 60;
 
     // Toggle key settings
     [Header("Toggle Key")]
-    [Tooltip("Key to toggle between image and webcam feed")]
-    public KeyCode toggleKey = KeyCode.Space;
+    [SerializeField] private KeyCode toggleKey = KeyCode.Space;
 
-    // Private variables
     private Texture currentTexture;
     private WebCamDevice[] webcamDevices;
     private WebCamTexture webcamTexture;
@@ -41,83 +31,97 @@ public class TestMediaDisplay : MonoBehaviour
         TextureChangeEvent.OnMainTextureChanged += HandleMainTextureChanged;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    // Called when the script instance is being loaded.
+    private void Start()
     {
-        // Limit frame rate to avoid lag
-        Application.targetFrameRate = 500;
-
-        // Get the list of available webcam devices
-        webcamDevices = WebCamTexture.devices;
-        // If no webcam devices are available, disable the useWebcam option
-        useWebcam = webcamDevices.Length > 0 ? useWebcam : false;
-        currentWebcam = webcamDevices[0].name;
-
-        // Initialize the webcam if available
-        if (webcamDevices.Length > 0 && useWebcam)
-        {
-            bool webcamPlaying = MediaDisplayManager.InitializeWebcam(ref webcamTexture, currentWebcam, webcamDims, webcamFrameRate);
-            useWebcam = webcamPlaying ? useWebcam : false;
-        }
-
-        // Update the screen texture based on the useWebcam option
-        currentTexture = useWebcam ? webcamTexture : testTexture;
-        if (useWebcam) Application.targetFrameRate = webcamFrameRate * 4;
-        MediaDisplayManager.UpdateScreenTexture(screenObject, currentTexture, cameraObject, useWebcam);
+        Initialize();
+        UpdateDisplay();
     }
 
-    // Update the screen with the current texture (image or webcam feed)
+    // Initializes the application's target frame rate and configures the webcam devices.
+    private void Initialize()
+    {
+        // Set the application's target frame rate to 500 to reduce lag.
+        Application.targetFrameRate = 500;
+        // Get the list of available webcam devices.
+        webcamDevices = WebCamTexture.devices;
+        // If no webcam devices are available, disable the useWebcam option.
+        useWebcam = webcamDevices.Length > 0 ? useWebcam : false;
+        // Set the current webcam device to the first available device, if any.
+        currentWebcam = useWebcam ? webcamDevices[0].name : "";
+    }
+
+    // Updates the display with the current texture (either a test texture or the webcam feed).
     public void UpdateDisplay()
     {
-        // If no webcam devices are available, disable the useWebcam option
-        useWebcam = webcamDevices.Length > 0 ? useWebcam : false;
-        // Initialize the webcam if available
-        if (webcamDevices.Length > 0 && useWebcam)
-        {
-            bool webcamPlaying = MediaDisplayManager.InitializeWebcam(ref webcamTexture, currentWebcam, webcamDims, webcamFrameRate);
-            useWebcam = webcamPlaying ? useWebcam : false;
-        }
-        //Disable webcam if playing
-        else if (webcamTexture.isPlaying)
-        {
-            webcamTexture.Stop();
-        }
-        currentTexture = useWebcam ? webcamTexture : testTexture;
-        if (useWebcam) Application.targetFrameRate = webcamFrameRate * 4;
-
+        // Set up the webcam if necessary.
+        SetupWebcam();
+        // Update the current texture based on the useWebcam option.
+        UpdateCurrentTexture();
+        // Start a coroutine to asynchronously update the screen texture.
         StartCoroutine(UpdateScreenTextureAsync());
     }
 
-    // Coroutine to update the screen texture asynchronously
+    // Sets up the webcam if the useWebcam option is enabled.
+    private void SetupWebcam()
+    {
+        // If there are no webcam devices, return immediately.
+        if (webcamDevices.Length == 0) return;
+
+        // If the useWebcam option is enabled, initialize the webcam.
+        if (useWebcam)
+        {
+            // Initialize the webcam and check if it started playing.
+            bool webcamPlaying = MediaDisplayManager.InitializeWebcam(ref webcamTexture, currentWebcam, webcamDims, webcamFrameRate);
+            // If the webcam failed to start playing, disable the useWebcam option.
+            useWebcam = webcamPlaying ? useWebcam : false;
+        }
+        // If the useWebcam option is disabled and the webcam texture is playing, stop the webcam.
+        else if (webcamTexture != null && webcamTexture.isPlaying)
+        {
+            webcamTexture.Stop();
+        }
+    }
+
+    // Updates the current texture and target frame rate based on the useWebcam option.
+    private void UpdateCurrentTexture()
+    {
+        // Set the current texture to the webcam texture if useWebcam is enabled, otherwise use the test texture.
+        currentTexture = useWebcam ? webcamTexture : testTexture;
+        // Set the target frame rate based on whether the webcam is being used or not.
+        Application.targetFrameRate = useWebcam ? webcamFrameRate * 4 : 500;
+    }
+
+    // Coroutine to update the screen texture asynchronously.
     IEnumerator UpdateScreenTextureAsync()
     {
-        // Wait until the webcamTexture is ready
-        while (webcamTexture.isPlaying && webcamTexture.width <= 16)
+        // Wait until the webcamTexture is ready if useWebcam is enabled.
+        while (useWebcam && webcamTexture.isPlaying && webcamTexture.width <= 16)
         {
             yield return null;
         }
 
-        // Update the screen texture with the current texture (image or webcam feed)
+        // Update the screen texture with the current texture (image or webcam feed).
         MediaDisplayManager.UpdateScreenTexture(screenObject, currentTexture, cameraObject, useWebcam);
     }
 
-    // Update is called once per frame
-    void Update()
+    // Update is called once per frame.
+    private void Update()
     {
-        // Toggle between image and webcam feed on key press
+        // Toggle between image and webcam feed on key press.
         if (Input.GetKeyUp(toggleKey))
         {
             useWebcam = !useWebcam;
-            UpdateDisplay(); // Call the function to update the display
+            UpdateDisplay(); // Call the function to update the display.
         }
     }
 
-    // Handle the texture change event
+    // Handle the texture change event.
     private void HandleMainTextureChanged(Material material)
     {
-        // Update the current texture
+        // Update the current texture.
         currentTexture = material.mainTexture;
-        // If the new main texture is different from the webcam texture and the webcam is playing, stop the webcam
+        // If the new main texture is different from the webcam texture and the webcam is playing, stop the webcam.
         if (webcamTexture && material.mainTexture != webcamTexture && webcamTexture.isPlaying)
         {
             useWebcam = false;
@@ -125,9 +129,10 @@ public class TestMediaDisplay : MonoBehaviour
         }
     }
 
-    // Unsubscribe from the texture change event when the script is disabled
+    // Unsubscribe from the texture change event when the script is disabled.
     private void OnDisable()
     {
         TextureChangeEvent.OnMainTextureChanged -= HandleMainTextureChanged;
     }
+
 }
