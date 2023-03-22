@@ -6,18 +6,25 @@ public class TestMediaDisplay : MonoBehaviour
 {
     // Scene components and settings
     [Header("Scene")]
+    [Tooltip("Screen object in the scene")]
     [SerializeField] private GameObject screenObject;
+    [Tooltip("Camera object in the scene")]
     [SerializeField] private GameObject cameraObject;
+    [Tooltip("A test texture to display on the screen")]
     [SerializeField] private Texture testTexture;
 
     // Webcam settings
     [Header("Webcam")]
+    [Tooltip("Option to use webcam as input")]
     [SerializeField] private bool useWebcam = false;
+    [Tooltip("Requested webcam dimensions")]
     [SerializeField] private Vector2Int webcamDims = new Vector2Int(1280, 720);
+    [Tooltip("Requested webcam framerate")]
     [SerializeField, Range(0, 60)] private int webcamFrameRate = 60;
 
     // Toggle key settings
     [Header("Toggle Key")]
+    [Tooltip("Key to toggle between image and webcam feed")]
     [SerializeField] private KeyCode toggleKey = KeyCode.Space;
 
     private Texture currentTexture;
