@@ -1,6 +1,6 @@
 using System.Collections;
 using UnityEngine;
-using MediaDisplay;
+using CJM.MediaDisplay;
 
 public class TestMediaDisplay : BaseScreenManager
 {
