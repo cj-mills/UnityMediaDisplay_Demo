@@ -8,7 +8,7 @@
       "hash": "093009211798b59467d091b26caf30d3ea580680"
     },
     "com.cj-mills.unity-media-display": {
-      "version": "https://github.com/cj-mills/Unity-Media-Display.git",
+      "version": "https://github.com/cj-mills/unity-media-display.git",
       "depth": 0,
       "source": "git",
       "dependencies": {},
