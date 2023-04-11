@@ -4,8 +4,7 @@ UnityMediaDisplay_Demo is a simple demo project demonstrating how to use the [Un
 
 
 ## Demo Video
-
-
+https://user-images.githubusercontent.com/9126128/231288868-2116cc3a-ebbe-4b43-9305-30fea6887bf4.mp4
 
 
 
