@@ -5,14 +5,14 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "9b168ceb3db44b59d186ec586b5b4d6184a7beee"
+      "hash": "38b595ab71c88ff8006ffe77000359ca8714e36c"
     },
     "com.cj-mills.unity-media-display": {
       "version": "https://github.com/cj-mills/unity-media-display.git",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "016e8e8ff75d6189d9f0b2cb0989decc77d260ce"
+      "hash": "e67c8d637ee38cb8854cfc7fe3fe1d11a202f770"
     },
     "com.unity.2d.animation": {
       "version": "9.0.1",
